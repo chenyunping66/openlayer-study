@@ -1,0 +1,68 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-10-07 14:16:10
+ * @LastEditTime: 2020-10-07 14:46:00
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \democ:\Users\12768\Desktop\ol\15.地图空间ol.control的使用\19.鼠标位置控件.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="../include/ol.css" type="text/css">
+  <script src="../include/ol.js"></script>
+
+</head>
+<body>
+  <div id="mouse-position"></div>
+  <form>
+    <label>投影</label>
+    <select id="projection">
+      <option value="ESPG:4326">ESPG:4326</option>
+      <option value="ESPG:3857">ESPG:3857</option>
+    </select>
+    <label>精度</label>
+    <input id="precision" type="number" min="0" max="12" value="4">
+  </form>
+  <div id="map" class="map"></div>
+  <script>
+    //缓存MousePosition对象
+    var mousePositionControl = new ol.control.MousePosition({
+      //https://openlayers.org/en/latest/apidoc/module-ol_coordinate.html#.createStringXY
+      coordinateFormat: ol.coordinate.createStringXY(4), //保留小数点四位数精度
+      projection:'EPSG:4326',//投影坐标系 
+      target:document.getElementById('mouse-position'), //将变量与DOM进行绑定
+    });
+    var map = new ol.Map({
+      controls:ol.control.defaults().extend([mousePositionControl]),
+      layers:[
+        new ol.layer.Tile({
+          source:new ol.source.OSM()
+        })
+      ],
+      target:'map',
+      view:new ol.View({
+        center:[0,0],
+        zoom:2
+      })
+    });
+    //https://openlayers.org/en/latest/apidoc/module-ol_control_MousePosition-MousePosition.html#setCoordinateFormat
+    var projectionSelect = document.getElementById('projection');  //投影坐标系
+    //https://blog.csdn.net/vincentblog/article/details/50629091   addEventListener() 方法
+    projectionSelect.addEventListener('change',function(event){ 
+      //setProjection （投影）设置用于报告鼠标位置的投影。
+      mousePositionControl.setProjection(event.target.value);  ////对投影坐标系进行重新设置
+    });
+    var precisionInput = document.getElementById('precision');
+    precisionInput.addEventListener('change',function(event){
+      console.log(event)
+      var format = ol.coordinate.createStringXY(event.target.valueAsNumber);
+      //setCoordinateFormat （格式）设置用于渲染当前位置的坐标格式类型。
+      mousePositionControl.setCoordinateFormat(format); //精度发生变化，对CoordinateFormat进行重新设置
+    })
+  </script>
+</body>
+</html>

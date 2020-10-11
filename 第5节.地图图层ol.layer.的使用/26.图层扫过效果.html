@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <link rel="stylesheet" href="../include/ol.css" type="text/css">
+  <script src="../include/ol.js"></script>
+
+</head>
+
+<body>
+  <input id="swipe" type="range" style="width: 100%">
+  <div id="map" class="map"></div>
+
+  <script>
+    var osm = new ol.layer.Tile({
+      source: new ol.source.OSM()
+    });
+    var bing = new ol.layer.Tile({
+      source: new ol.source.BingMaps({
+        key: "As1HiMj1PvLPlqc_gtM7AqZfBL8ZL3VrjaS3zIb22Uvb9WKhuJObROC-qUpa81U5",
+        imagerySet: "Aerial"
+      })
+    });
+
+    var map = new ol.Map({
+      layers: [osm, bing],
+      target: "map",
+      view: new ol.View({
+        center: [0, 0],
+        zoom: 2
+      })
+    });
+
+    var swipe = document.getElementById("swipe");
+
+    bing.on("precompose", function (event) {
+      console.log(event)
+      var ctx = event.context; //获取canvas的上下文对象
+      var width = ctx.canvas.width * (swipe.value / 100);  //宽度百分比通过滑块的值来确定
+
+      // https://developer.mozilla.org/zh-CN/docs/Web/API/CanvasRenderingContext2D
+      ctx.save(); //// 保存默认的状态
+      ctx.beginPath(); //通过清空子路径列表开始一个新路径的方法。 当你想创建一个新的路径时，调用此方法。
+      //beginPath()新建一条路径，生成之后，图形绘制命令被指向到路径上生成路径。
+      ctx.rect(width, 0, ctx.canvas.width - width, ctx.canvas.height); //绘制矩形
+      //rect(x, y, width, height)绘制一个左上角坐标为（x,y），宽高为width以及height的矩形。
+      ctx.clip(); //bing图层内容渲染到矩形闭合图形里面
+      //使用 clip 方法创建剪切区域。
+    });
+
+    bing.on("postcompose", function (event) {
+      var ctx = event.context;
+      ctx.restore(); //// 还原到上次保存的默认状态
+    });
+
+    swipe.addEventListener(
+      "input",
+      function () {
+        map.render(); //每次调节滑块位置，调用map.render()
+      },
+      false
+    );
+
+  </script>
+</body>
+
+</html>

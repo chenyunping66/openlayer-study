@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>使用地图切换动画
+  </title>
+  <link rel="stylesheet" href="./include/ol.css" type="text/css">
+  <script src="./include/ol.js"></script>
+
+</head>
+<style>
+
+</style>
+
+<body>
+
+  <button id="rotate-left" title="顺时针旋转">↻</button>
+  <button id="rotate-right" title="逆时针旋转">↺</button>
+  <button id="pan-to-london">平移到伦敦</button>
+  <button id="elastic-to-moscow">弹性平移到莫斯科</button>
+  <button id="bounce-to-istanbul">弹跳平移到伊斯坦布尔</button>
+  <button id="spin-to-rome">旋转平移到罗马</button>
+  <button id="rotate-around-rome">绕着罗马旋转</button>
+  <button id="fly-to-bern">飞行到伯尔尼</button>
+  <button id="tour">来一段旅行</button>
+  <div id="map" class="map"></div>
+  <script>
+    //1. proj.fromLonLat：将坐标从经度/纬度转换为ol默认的3857坐标系EPSG的xy坐标
+    // proj.toLonLat：将坐标转换为经度/纬度。  https://www.zhihu.com/question/52220968
+    //https://epsg.io/?q=EPSG
+    // PSP的英文全称是European Petroleum Survey Group，中文名称为欧洲石油调查组织。这个组织成立于1986年，2005年并入IOGP(International Association of Oil & Gas Producers)，中文名称为国际油气生产者协会。EPSG对世界的每一个地方都制定了地图，但是由于座标系不同，所以地图也各不相同。
+    var london = ol.proj.fromLonLat([-0.12755, 51.507222]);
+    var moscow = ol.proj.fromLonLat([37.6178, 55.7517]);
+    var istanbul = ol.proj.fromLonLat([28.9744, 41.0128]);
+    var rome = ol.proj.fromLonLat([12.5, 41.9]);
+    var bern = ol.proj.fromLonLat([7.4458, 46.95]);
+
+    var view = new ol.View({
+      center: istanbul,
+      zoom: 6
+    });
+
+    var map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          preload: 4, //预加载缩放级别为4的瓦片
+          source: new ol.source.OSM()
+        })
+      ],
+
+      loadTilesWhileAnimating: true, //当做动画过渡的时候允许加载瓦片的
+      view: view
+    });
+
+
+    function bounce(t) {
+      var s = 7.5625;
+      var p = 2.75;
+      var l;
+      if (t < (1 / p)) {
+        l = s * t * t;
+      } else {
+        if (t < (2 / p)) {
+          t -= (1.5 / p);
+          l = s * t * t + 0.75;
+        } else {
+          if (t < (2.5 / p)) {
+            t -= (2.25 / p);
+            l = s * t * t + 0.9375;
+          } else {
+            t -= (2.625 / p);
+            l = s * t * t + 0.984375;
+          }
+        }
+      }
+      return l;
+    }
+
+    function elastic(t) { //时间函数：从动画开始到结束（弹性平移到莫斯科）
+      return Math.pow(2, -10 * t) * Math.sin((t - 0.075) * (2 * Math.PI) / 0.3) + 1;
+    }
+
+    function onClick(id, callback) {
+      document.getElementById(id).addEventListener('click', callback);
+    }
+
+    onClick('rotate-left', function () {
+      view.animate({
+        rotation: view.getRotation() + Math.PI / 2 //逆时针时针旋转90°
+        //getRotation （）{数} ：
+        // 获取视图旋转。
+        // 返回值：
+        // 视图的旋转度（ 以弧度为单位）。
+      });
+    });
+
+    onClick('rotate-right', function () {
+      // //动画（var_args）：
+      // 对视图进行动画处理。可以对视图的中心，缩放（或分辨率）和旋转进行动画处理，以实现视图状态之间的平滑过渡。
+      view.animate({
+        //rotation	数 ：动画结束时视图的旋转。
+        rotation: view.getRotation() - Math.PI / 2 //顺时针旋转90°
+      });
+    });
+
+    //绕着罗马旋转
+    onClick('rotate-around-rome', function () {
+
+      var rotation = view.getRotation(); //获取当前旋转角度
+      view.animate({ //切入
+        rotation: rotation + Math.PI, //180°
+        anchor: rome, //可选的锚点，可在旋转或分辨率动画期间保持固定。
+        easing: ol.easing.easeIn //动画
+      }, { //切出
+        rotation: rotation + 2 * Math.PI, //2
+        anchor: rome,
+        easing: ol.easing.easeOut
+      });
+    });
+    //平移到伦敦
+    onClick('pan-to-london', function () {
+      view.animate({
+        center: london,
+        duration: 2000 //2秒钟平移到伦敦
+      });
+    });
+    //弹性平移到莫斯科
+    onClick('elastic-to-moscow', function () {
+      view.animate({
+        center: moscow,
+        duration: 2000,
+        easing: elastic //弹性平移
+      });
+    });
+    //弹跳平移到伊斯坦布尔
+    onClick('bounce-to-istanbul', function () {
+      view.animate({
+        center: istanbul,
+        duration: 2000,
+        easing: bounce //弹跳效果
+      });
+    });
+    //旋转平移到罗马
+    onClick('spin-to-rome', function () { //绕着罗马旋转
+
+      var center = view.getCenter();
+      view.animate({
+        center: [
+          center[0] + (rome[0] - center[0]) / 2,
+          center[1] + (rome[1] - center[1]) / 2
+        ],
+        rotation: Math.PI,
+        easing: ol.easing.easeIn
+      }, {
+        center: rome,
+        rotation: 2 * Math.PI,
+        easing: ol.easing.easeOut //有阻塞的
+      });
+    });
+
+    function flyTo(location, done) { //工具函数（先平移再放大）（并行的）
+      var duration = 2000;
+      var zoom = view.getZoom();
+      var parts = 2;
+      var called = false;
+
+      function callback(complete) {
+        --parts;
+        if (called) {
+          return;
+        }
+        if (parts === 0 || !complete) {
+          called = true;
+          done(complete);
+        }
+      }
+      view.animate({ //平移
+        center: location,
+        duration: duration
+      }, callback);
+      view.animate({ //缩小
+        zoom: zoom - 1,
+        duration: duration / 2
+      }, { //恢复原来的缩放级别
+        zoom: zoom,
+        duration: duration / 2
+      }, callback);
+    }
+
+    onClick('fly-to-bern', function () {
+      flyTo(bern, function () {});
+    });
+
+    function tour() {
+      var locations = [london, bern, rome, moscow, istanbul]; //地理位置的数组
+      var index = -1;
+
+      function next(more) { //递归
+        if (more) {
+          ++index;
+          if (index < locations.length) {
+            var delay = index === 0 ? 0 : 750;
+            setTimeout(function () {
+              flyTo(locations[index], next);
+            }, delay);
+          } else {
+            alert('Tour complete'); //运行结束
+          }
+        } else {
+          alert('Tour cancelled'); //运行取消
+        }
+      }
+      next(true);
+    }
+
+    onClick('tour', tour);
+  </script>
+</body>
+
+</html>
+<!-- 
+  - 核心是animate的使用
+    + 同一个animate过程可分为入场出场动画
+    + 多个animate过程并发执行
+  - easing可以自定义过渡效果，返回值为0-1之间的小数，代表起点到终点的变化进度
+ -->

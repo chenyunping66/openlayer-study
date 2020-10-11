@@ -1,0 +1,39 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-10-07 14:47:24
+ * @LastEditTime: 2020-10-07 17:03:45
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \democ:\Users\12768\Desktop\ol\15.地图空间ol.control的使用\20.缩放滑块控件.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+   <link rel="stylesheet" href="../include/ol.css" type="text/css">
+  <script src="../include/ol.js"></script>
+
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    var source = new ol.source.OSM();
+    var layer = new ol.layer.Tile({
+      source:source
+    });
+    var map = new ol.Map({
+      layers:[layer],
+      target:'map',
+      view:new ol.View({
+        center:[0,0],
+        zoom:2  //按照整数缩放
+      })
+    });
+
+    var zoomSlider = new ol.control.ZoomSlider();  //平滑的，不是按照整数缩放的
+    map.addControl(zoomSlider);  //动态加入地图里面 使用addControl（）方法
+  </script>
+</body>
+</html>

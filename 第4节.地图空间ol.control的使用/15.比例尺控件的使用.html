@@ -1,0 +1,69 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-10-06 14:53:40
+ * @LastEditTime: 2020-10-06 16:28:54
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \democ:\Users\12768\Desktop\ol\15.地图空间ol.control的使用\15.比例尺控件的使用.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="../include/ol.css" type="text/css">
+  <script src="../include/ol.js"></script>
+</head>
+<body>
+  <!-- <select id="units">
+    <option value="degress">度</option>
+    <option value="imperial">英制英尺</option>
+    <option value="us">美制英尺</option>
+    <option value="nautical">海里</option>
+    <option value="metric" selected>公制</option>
+  </select>
+  <div id="map" class="map"></div> -->
+
+  <!-- <select id="units">
+    <option value="degrees">度</option>
+    <option value="imperial">英制英尺</option>
+    <option value="us">美制英尺</option>
+    <option value="nautical">海里</option>
+    <option value="metric" selected>公制</option>
+  </select>
+  <div id="map" class="map"></div> -->
+  <select id="units">
+    <option value="degrees">度</option>
+    <option value="imperial">英制英尺</option>
+    <option value="us">美制英尺</option>
+    <option value="nautical">海里</option>
+    <option value="metric">公制</option>
+  </select>
+  <div id="map"></div>
+  <script>
+    var scaleLineControl = new ol.control.ScaleLine(); //声明一个ScaleLine对象缓存在这里
+    var map = new ol.Map({
+      controls:ol.control.defaults().extend([ //controls集合 是ol.control类的集合，需要使用extend添加进去
+        scaleLineControl
+      ]),
+      layers:[
+        new ol.layer.Tile({
+          source:new ol.source.OSM()
+        })
+      ],
+      target:'map',
+      view:new ol.View({
+        center:[0,0],
+        zoom:2
+      })
+    });
+    var unitsSelect = document.getElementById('units');  //获取下拉菜单的dom对象
+    function onChange(){
+      scaleLineControl.setUnits(unitsSelect.value); //设置为下拉菜单所选择的单位
+    }
+    unitsSelect.addEventListener('change',onChange); //将change时间绑定在一起
+    onChange(); //初始化scaleLineControl的单位
+  </script>
+</body>
+</html>

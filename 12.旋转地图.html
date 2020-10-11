@@ -1,0 +1,52 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-10-05 22:08:18
+ * @LastEditTime: 2020-10-05 22:23:09
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \democ:\Users\12768\Desktop\ol\12.旋转地图.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>旋转地图</title>
+  <link rel="stylesheet" href="./include/ol.css" type="text/css">
+  <script src="./include/ol.js"></script>
+</head>
+<body>
+  <div id="map" class="map"></div>
+  <script>
+    var map = new ol.Map({
+      layers:[
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      target:'map',
+      view:new ol.View({
+        center:[14200000,4130000],
+        // center: [14200000, 4130000],
+
+        rotation:Math.PI/6, //30°
+        zoom:10
+      })
+    });
+    // map.getView().setRotation(Math.PI);
+    //延迟函数
+    function sleep(time){
+      return new Promise((resolve) => setTimeout(resolve,time));
+    }
+    sleep(4500).then(()=>{
+      map.getView().setRotation(Math.PI)
+    })
+  </script>
+</body>
+</html>
+<!-- 
+  旋转地图：
+    - rotation属性初始化地图的旋转角度
+    - setRotate方法设置地图旋转角度
+    -思考：和animate有什么区别
+ -->

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>高级视图定位</title>
+  <link rel="stylesheet" href="./include/ol.css" type="text/css">
+  <script src="./include/ol.js"></script>
+
+</head>
+<style>
+  .mapcontainer {
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .map {
+    width: 1000px;
+    height: 600px;
+  }
+
+  div.ol-zoom {
+    top: 178px;
+    left: 158px;
+  }
+
+  div.ol-rotate {
+    top: 178px;
+    right: 58px;
+  }
+
+  .map div.ol-attribution {
+    bottom: 30px;
+    right: 50px;
+  }
+
+  .padding-top {
+    position: absolute;
+    top: 0;
+    left: 0px;
+    width: 1000px;
+    height: 170px;
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .padding-left {
+    position: absolute;
+    top: 170px;
+    left: 0;
+    width: 150px;
+    height: 400px;
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .padding-right {
+    position: absolute;
+    top: 170px;
+    left: 950px;
+    width: 50px;
+    height: 400px;
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .padding-bottom {
+    position: absolute;
+    top: 570px;
+    left: 0px;
+    width: 1000px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .center {
+    position: absolute;
+    border: solid 1px black;
+    top: 490px;
+    left: 560px;
+    width: 20px;
+    height: 20px;
+  }
+</style>
+<body>
+  
+  <button id="zoomtoswitzerlandbest">缩放到瑞士</button> (匹配高度),<br />
+  <button id="zoomtoswitzerlandconstrained">缩放到瑞士</button> (匹配最合适的分辨率).<br />
+  <button id="zoomtoswitzerlandnearest">缩放到瑞士</button> (匹配宽度),<br />
+  <button id="zoomtolausanne">缩放到洛桑</button> (使用minResolution参数),<br />
+  <button id="centerlausanne">中心定位到洛桑</button>
+  <div class="mapcontainer">
+    <div id="map" class="map"></div>
+    <div class="padding-top"></div>
+    <div class="padding-left"></div>
+    <div class="padding-right"></div>
+    <div class="padding-bottom"></div>
+    <div class="center"></div>  
+    <!-- 页面中心 -->
+  </div>
+
+  <script>
+    //1.定义矢量数据源
+    var source = new ol.source.Vector({
+      url: '../data/switzerland.geojson',
+      format: new ol.format.GeoJSON() //以GeoJSON格式读取url数据
+    });
+    //2.定义Vector矢量图层样式
+    var style = new ol.style.Style({
+      fill: new ol.style.Fill({
+        color: 'rgba(255, 255, 255, 0.6)'
+      }),
+      stroke: new ol.style.Stroke({
+        color: '#319FD3',
+        width: 1
+      }),
+      image: new ol.style.Circle({
+        radius: 5,
+        fill: new ol.style.Fill({
+          color: 'rgba(255, 255, 255, 0.6)'
+        }),
+        stroke: new ol.style.Stroke({
+          color: '#319FD3',
+          width: 1
+        })
+      })
+    });
+
+    var vectorLayer = new ol.layer.Vector({
+      source: source,
+      style: style
+    });
+    //定义
+    var view = new ol.View({
+      center: [0, 0],
+      zoom: 1
+    });
+
+    var map = new ol.Map({
+      layers: [
+        new ol.layer.Tile({  //Tile栅格图层
+          source: new ol.source.OSM()  //OSM的源
+        }),
+        vectorLayer  //矢量图层
+      ],
+      target: 'map',
+      view: view
+    });
+
+
+   //5个按钮的点击事件
+    var zoomtoswitzerlandbest = document.getElementById('zoomtoswitzerlandbest');
+    zoomtoswitzerlandbest.addEventListener('click', function () {
+      var feature = source.getFeatures()[0];  //拿到要素集合的第一个元素是一个多边形
+      var polygon = feature.getGeometry();  //获取集合体
+      //https://openlayers.org/en/latest/apidoc/module-ol_View-View.html#fit
+      view.fit(polygon, { //fit方法匹配
+        padding: [170, 50, 30, 150],
+        constrainResolution: false  //不受分辨率限制（外接）
+      });
+      //padding	Array。<number> （默认为[0，0，0，0]）要在视图内部清除填充（以像素为单位）。数组中的值是顶部，右侧，底部和左侧填充。
+      //constrainResolution	布尔值 （默认为false）	如果为true，则视图在交互后将始终设置为最接近的缩放级别。false表示允许中间缩放级别。
+      console.log(map.getView().getZoom())
+    }, false);
+
+    var zoomtoswitzerlandconstrained =
+      document.getElementById('zoomtoswitzerlandconstrained');
+    zoomtoswitzerlandconstrained.addEventListener('click', function () {
+      var feature = source.getFeatures()[0];
+      var polygon = feature.getGeometry();
+      view.fit(polygon, {
+        padding: [170, 50, 30, 150] //最匹配范围(上右下左（宽和高度）)
+      });
+      console.log(map.getView().getZoom())
+    }, false);
+
+    var zoomtoswitzerlandnearest =
+      document.getElementById('zoomtoswitzerlandnearest');
+    zoomtoswitzerlandnearest.addEventListener('click', function () {
+      var feature = source.getFeatures()[0];
+      var polygon = feature.getGeometry();
+      view.fit(polygon, {
+        padding: [170, 50, 30, 150],
+        nearest: true  //最佳分辨率
+      });
+      //nearest	布尔值 （默认为false）如果viewconstrainResolution选项为true，则获取最接近的范围，而不是实际适合视图的最接近范围。
+      console.log(map.getView().getZoom())
+    }, false);
+
+    var zoomtolausanne = document.getElementById('zoomtolausanne');
+    zoomtolausanne.addEventListener('click', function () {
+      var feature = source.getFeatures()[1]; //第二个元素读取的feature是point
+      var point = feature.getGeometry();
+      view.fit(point, {
+        padding: [170, 50, 30, 150],
+        minResolution: 250  //将某点以某分辨率在视图中居中
+      });
+      //fit(geometryOrExtent, opt_options)
+      // Fit the given geometry or extent based on the given map size and border. The size is pixel dimensions of the box to fit the extent into. In most cases you will want to use the map size, that is map.getSize(). Takes care of the map angle.
+    }, false);
+
+    var centerlausanne = document.getElementById('centerlausanne');
+    centerlausanne.addEventListener('click', function () {
+      var feature = source.getFeatures()[1];
+      var point = feature.getGeometry();
+      var size = map.getSize();
+      //获取此地图的大小。
+      console.log(size)
+      view.centerOn(point.getCoordinates(), size, [570, 500]); //加上宽高的一半
+      //centerOn(coordinate, size, position): Center on coordinate and view position.
+      //getCoordinates:返回点的坐标。
+    }, false);
+  </script>
+</body>
+
+</html>
+<!-- 
+  总结：view的两个方法
+  - view.fit 
+     + 将某多边形区域适配到某个范围内（外接，最佳匹配范围，最佳分辨率）
+     +  按照某点以分辨率居中
+  - view.centerOn:将某点定位到某屏幕坐标的相对位置，定位时分辨率不变。
+    -->

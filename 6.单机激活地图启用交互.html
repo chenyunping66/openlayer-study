@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>单机激活地图启用交互</title>
+  <link rel="stylesheet" href="./include/ol.css" type="text/css">
+  <script src="./include/ol.js"></script>
+</head>
+
+<body>
+  <!-- https://openlayers.org/en/latest/examples/accessible.html -->
+  <div tabindex="2" id="map" class="map"></div>
+  <!-- 这个页面的map元素将其tabindex属性设置为“0”，这使得它可以定焦。
+    要聚焦地图元素，您可以使用“tab”键导航到它，或者使用跳过链接。当地图元素被聚焦时，+和-键可用于放大和缩小，箭头键可用于平移。 -->
+  <div>
+    ol / View〜视图
+
+    import View from 'ol/View';
+    View对象代表地图的简单2D视图。
+
+    这是要更改地图中心，分辨率和旋转的对象。
+
+    视图状态
+    一个视图是由三种状态确定：center，resolution，和rotation。每个状态具有相应的获取和设置，例如 getCenter和setCenter用于center状态。
+
+    视图有一个projection。投影确定中心的坐标系，其单位确定分辨率的单位（每像素的投影单位）。默认投影为球形墨卡托（EPSG：3857）。
+
+    约束条件
+    setCenter，setResolution并setRotation可以用来改变视图的状态。任何值都可以传递给设置器。传递给setter的值将实际上是视图中设置的值，并由相应的getter返回。
+
+    但是View对象还具有分辨率约束， 旋转约束和中心约束。
+
+    如上所述，当使用设置器为视图设置新状态时，不应用任何约束。通过使用constrain*功能（constrainResolution和 constrainRotation和constrainCenter）明确地应用约束。
+
+    约束的主要用户是交互和控件。例如，双击地图可将视图更改为“下一个”分辨率。捏缩放后将手指释放到最接近的分辨率（带有动画）。
+
+    该决议约束捕捉到具体决议。它是由以下选项决定：resolutions，maxResolution， maxZoom，和zoomFactor。如果resolutions设置为，则忽略其他三个选项。有关更多信息，请参见每个选项的文档。
+
+    该旋转约束捕捉到特定角度。它由以下选项确定：enableRotation和constrainRotation。默认情况下，接近水平面时旋转值会捕捉为零。
+
+    该中心的约束是由确定的extent选项。默认情况下，中心完全不受约束。
+  </div>
+</body>
+<script>
+  // https://openlayers.org/en/v5.3.0/apidoc/module-ol_interaction.html
+  //https://openlayers.org/en/v5.3.0/apidoc/module-ol_Map-Map.html
+  // interactions: ol.interaction.defaults
+  var map = new ol.Map({
+    interactions: ol.interaction.defaults({
+      onFocusOnly: true //只有在获得焦点才可以生效（单机之后才可以生效）
+    }),
+    layers: [
+      new ol.layer.Tile({ //	new ol.layer.Tile({
+        source: new ol.source.OSM()
+      })
+    ],
+    target: 'map',
+    view: new ol.View({
+      center: [0, 0],
+      zoom: 2
+    })
+  });
+  map.on('moveend', function () { //缩放响应
+    //https://openlayers.org/en/v5.3.0/apidoc/module-ol_View-View.html
+    console.log(map.getView().getZoom()) //获取视图的缩放级别
+  })
+</script>
+
+</html>
+<!-- 
+  单击激活地图启用交互：
+    - 通过定义tabIndex使地图容器处于失去焦点状态
+    - 通过ol.interactions的默认配置项onFocusOnly控制是否响应交互
+
+ -->

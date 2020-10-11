@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="../include/ol.css" type="text/css">
+  <script src="../include/ol.js"></script>
+</head>
+
+<body>
+  <!-- 
+    1.地图分辨率：
+      - 地图图形1像素宽度与实地距离的比值
+      - 体现的是视图坐标系与地理坐标系之间的关系
+    2. 对应每一个分辨率，有一个缩放等级
+      - Openlayers最大支持29级分辨率
+      - 不是每种地图都有29级分辨率，一般精细到20级（goole、OSM都是采用的20级别）
+     最小是0级别，最大是29级别
+   -->
+   <div id="map" class="map"></div>
+
+  <script>
+    	var map = new ol.Map({
+			target: 'map',
+			layers: [
+			new ol.layer.Tile({
+				source: new ol.source.BingMaps({
+				key: 'As1HiMj1PvLPlqc_gtM7AqZfBL8ZL3VrjaS3zIb22Uvb9WKhuJObROC-qUpa81U5',
+				imagerySet: 'Aerial'  //类型的图像。
+				})
+			})
+			],
+			view: new ol.View({
+			center: [-13553864, 5918250],
+			zoom: 11,
+			minZoom: 9, //最小缩放级别
+			maxZoom: 13  //最大缩放级别
+			})
+		});
+  </script>
+</body>
+
+</html>

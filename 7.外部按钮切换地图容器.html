@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>外部按钮切换地图容器 </title>
+  <link ref="stylesheet" href="./include/ol.css" type="text/css">
+  <script src="./include/ol.js"></script>
+</head>
+<style>
+  html,
+  dody,
+  .map {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 70px;
+  }
+</style>
+
+<body>
+  <button id="teleport">切换</button>
+  <div id="map1" class="map"></div>
+  <div id="map2" class="map"></div>
+</body>
+<script>
+  var map = new ol.Map({
+    layers: [
+      new ol.layer.Tile({
+        source: new ol.source.OSM()
+      })
+    ],
+    view: new ol.View({
+      center: [0, 0],
+      zoom: 2
+    })
+  });
+  map.setTarget('map1'); //setTarget设置目标元素以将此地图渲染到其中。
+  var teleportButton = document.getElementById('teleport');
+  teleportButton.addEventListener('click', function () {
+    var target = map.getTarget() === 'map1' ? 'map2' : 'map1'; //拿到map容器进行判断
+    //getTarget （）{HTMLElement | string | undefined} 遗传
+    // PluggableMap.js，691行
+    // 获取在其中渲染此地图的目标。注意，这将返回在选项或setTarget中输入的内容：如果是元素，则返回元素；如果是字符串，则返回该字符串。
+    map.setTarget(target);
+  }, false);
+  //https://blog.csdn.net/qq_34626003/article/details/71079449
+  // addEventListener（type, fn , true/false）绑定事件第三个参数作用以及利用事件的冒泡，实现事件委托
+</script>
+
+</html>
+<!-- 总结：
+
+-->

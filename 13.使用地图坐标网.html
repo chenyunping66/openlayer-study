@@ -1,0 +1,51 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-10-05 22:32:58
+ * @LastEditTime: 2020-10-05 22:44:41
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \democ:\Users\12768\Desktop\ol\13.使用地图坐标网.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="../include/ol.css" type="text/css">
+  <script src="../include/ol.js"></script>
+
+</head>
+<body>
+  <div id="map" class="map"></div>
+  <script>
+    var map = new ol.Map({
+      layers:[
+        new ol.layer.Tile({
+          source:new ol.source.OSM()
+        })
+      ],
+      target:'map',
+      view:new ol.View({
+        center:ol.proj.fromLonLat([4.8,47.75]),
+        zoom:5
+      })
+    });
+    var graticule = new ol.Graticule({ //使用Graticule构造函数
+      strokeStyle:new ol.style.Stroke({ //ol.style.Stroke类的对象初始化
+        color:'red',
+        width:2,
+        lineDash:[4] //每四个像素一个虚线虚线
+      }),
+      showLabels:true //显示文字标签
+    });
+    graticule.setMap(map); //将map对象赋值给graticule对象里面的map属性
+
+  </script>
+</body>
+</html>
+<!-- 
+  总结：strokeStyle:描边样式
+        showLabels: 是否显示文字标签
+        setMap:关联map和graticule
+ -->

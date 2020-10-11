@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <link rel="stylesheet" href="../include/ol.css" type="text/css">
+    <script src="../include/ol.js"></script>
+
+  </head>
+  <body>
+     <div id="map" class="map"></div>
+
+    <script>
+     var osm = new ol.layer.Tile({
+        source: new ol.source.OSM()
+      });
+
+      var map = new ol.Map({
+        layers: [osm],
+        target: 'map',
+        view: new ol.View({
+          center: [0, 0],
+          zoom: 2
+        })
+      });
+
+      osm.on('precompose', function(event) { //precompose图层渲染前触发
+        
+        var ctx = event.context; //获取canvas上下文
+        
+        ctx.save(); //// 保存默认的状态
+//https://openlayers.org/en/v5.3.0/apidoc/module-ol_PluggableMap.html#~FrameState
+        var pixelRatio = event.frameState.pixelRatio; //pixelRatio帧的像素比率。
+        var size = map.getSize();
+        // 平移
+        ctx.translate(size[0] / 2 * pixelRatio, size[1] / 2 * pixelRatio); //像素密度和地图尺寸
+        //缩放
+        ctx.scale(3 * pixelRatio, 3 * pixelRatio);
+        //平移'
+        //ctx.translate(x, y);
+        //https://wiki.developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/translate
+       ctx.translate(-75, -80);
+       //  //创建圆形剪切路径
+        ctx.beginPath();
+        ctx.moveTo(75, 40);
+        //https://wiki.developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/bezierCurveTo
+        ctx.bezierCurveTo(75, 37, 70, 25, 50, 25);
+        //ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
+        ctx.bezierCurveTo(20, 25, 20, 62.5, 20, 62.5);
+        ctx.bezierCurveTo(20, 80, 40, 102, 75, 120);
+        ctx.bezierCurveTo(110, 102, 130, 80, 130, 62.5);
+        ctx.bezierCurveTo(130, 62.5, 130, 25, 100, 25);
+        ctx.bezierCurveTo(85, 25, 75, 37, 75, 40);
+        ctx.clip();//将canvas所有内容闭合起来
+        ctx.translate(75, 80);
+        ctx.scale(1 / 3 / pixelRatio, 1 / 3 / pixelRatio);  //ctx.scale(x, y);
+        //https://wiki.developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/scale
+        ctx.translate(-size[0] / 2 * pixelRatio, -size[1] / 2 * pixelRatio);
+       });
+
+      osm.on('postcompose', function(event) { //postcompose图层渲染后触发
+        var ctx = event.context;
+         ctx.restore(); //// 还原到上次保存的默认状态
+      });
+    </script>
+  </body>
+</html>
